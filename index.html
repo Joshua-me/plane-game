@@ -138,10 +138,6 @@ body::before {
   background: linear-gradient(90deg, #ff7e8a, #ff4c67);
 }
 
-.fuel-track .meter-fill {
-  background: linear-gradient(90deg, #ffe27a, #ffb347);
-}
-
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -500,13 +496,6 @@ canvas {
           <div class="meter-fill" id="healthFill"></div>
         </div>
 
-        <div class="meter-header">
-          <span>Fuel</span>
-          <strong id="fuelText">100%</strong>
-        </div>
-        <div class="meter-track fuel-track">
-          <div class="meter-fill" id="fuelFill"></div>
-        </div>
       </div>
 
       <div class="panel-card live-stats">
@@ -541,9 +530,8 @@ canvas {
       <div class="panel-card tips-card">
         <h2>Mission Notes</h2>
         <ul>
-          <li>Fuel drains in combat. Zero fuel sharply cuts movement speed.</li>
           <li>Enemy planes scale from your current build, but stay slightly weaker.</li>
-          <li>After the first three enemies, your health and fuel fully reset before the boss duel.</li>
+          <li>After the first three enemies, your health fully resets before the boss duel.</li>
         </ul>
       </div>
 
@@ -611,9 +599,7 @@ canvas {
     moneyValue: document.getElementById("moneyValue"),
     rewardValue: document.getElementById("rewardValue"),
     healthText: document.getElementById("healthText"),
-    fuelText: document.getElementById("fuelText"),
     healthFill: document.getElementById("healthFill"),
-    fuelFill: document.getElementById("fuelFill"),
     playerBuildStats: document.getElementById("playerBuildStats"),
     partList: document.getElementById("partList"),
     enemyCount: document.getElementById("enemyCount"),
@@ -1073,7 +1059,6 @@ canvas {
       particles: [],
       reward: 0,
       elapsed: 0,
-      fuel: 100,
       startedAt: performance.now(),
       resultShown: false,
     };
@@ -1118,7 +1103,6 @@ canvas {
     player.angle = 0;
     player.health = player.maxHealth;
     player.cooldown = 0;
-    gameState.fuel = 100;
     ui.statusText.textContent = "Boss Incoming";
     refreshRuntimeUI(true);
   }
@@ -1220,7 +1204,6 @@ canvas {
     const enemies = gameState.enemies;
     const bullets = gameState.bullets;
     gameState.elapsed += dt;
-    gameState.fuel = Math.max(0, gameState.fuel - dt * 1.9);
     handlePlayerInput(player, dt);
     player.updateCooldown(dt);
 
@@ -1296,10 +1279,8 @@ canvas {
     dx /= magnitude;
     dy /= magnitude;
 
-    const fuelPenalty = gameState.fuel <= 0 ? 0.35 : gameState.fuel < 18 ? 0.6 : 1;
-    const moveSpeed = player.speed * fuelPenalty;
-    player.x = clamp(player.x + dx * moveSpeed * dt, 40, canvas.width - 40);
-    player.y = clamp(player.y + dy * moveSpeed * dt, 50, canvas.height - 50);
+    player.x = clamp(player.x + dx * player.speed * dt, 40, canvas.width - 40);
+    player.y = clamp(player.y + dy * player.speed * dt, 50, canvas.height - 50);
 
     if (dx !== 0 || dy !== 0) {
       const targetAngle = Math.atan2(dy, dx);
@@ -1475,7 +1456,6 @@ canvas {
       { label: "Damage", value: save.stats.damage.toFixed(1) },
       { label: "Fire Delay", value: `${Math.round(save.stats.fireCooldown)}ms` },
       { label: "Health", value: Math.round(save.stats.maxHealth) },
-      { label: "Fuel Drag", value: "Slow drain" },
     ];
 
     ui.playerBuildStats.innerHTML = stats
@@ -1497,19 +1477,14 @@ canvas {
       ui.enemyCount.textContent = "3";
       ui.statusText.textContent = "Stand by";
       ui.healthText.textContent = `${Math.round(save.stats.maxHealth)} / ${Math.round(save.stats.maxHealth)}`;
-      ui.fuelText.textContent = "100%";
       ui.healthFill.style.width = "100%";
-      ui.fuelFill.style.width = "100%";
       return;
     }
 
     const player = gameState.player;
     const healthRatio = clamp(player.health / player.maxHealth, 0, 1);
-    const fuelRatio = clamp(gameState.fuel / 100, 0, 1);
     ui.healthText.textContent = `${Math.max(0, Math.round(player.health))} / ${Math.round(player.maxHealth)}`;
-    ui.fuelText.textContent = `${Math.round(gameState.fuel)}%`;
     ui.healthFill.style.width = `${healthRatio * 100}%`;
-    ui.fuelFill.style.width = `${fuelRatio * 100}%`;
     ui.enemyCount.textContent = gameState.transitionTimer > 0 && gameState.phase === "boss" ? "1" : String(gameState.enemies.length);
     ui.rewardValue.textContent = `$${Math.round(gameState.reward)}`;
 
@@ -1517,14 +1492,14 @@ canvas {
       return;
     }
     if (gameState.transitionTimer > 0) {
-      ui.statusText.textContent = "Refuel Complete";
+      ui.statusText.textContent = "Ready for Boss";
       return;
     }
     if (gameState.phase === "boss") {
-      ui.statusText.textContent = gameState.fuel <= 0 ? "Boss Fight: Out of Fuel" : gameState.fuel < 18 ? "Boss Fight: Fuel Critical" : "Boss Fight";
+      ui.statusText.textContent = "Boss Fight";
       return;
     }
-    ui.statusText.textContent = gameState.fuel <= 0 ? "Out of Fuel" : gameState.fuel < 18 ? "Fuel Critical" : "Squadron Fight";
+    ui.statusText.textContent = "Squadron Fight";
   }
 
   function refreshRuntimeUI(force) {
