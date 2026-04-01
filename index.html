@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sky Dominion</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="side-panel stats-panel">
+      <div class="panel-card brand-card">
+        <p class="eyebrow">Plane Combat</p>
+        <h1>Sky Dominion</h1>
+        <p class="panel-copy">Survive the squadron, down the ace, and turn each run into stronger hardware.</p>
+      </div>
+
+      <div class="panel-card stat-card">
+        <div class="stat-row">
+          <span>Money</span>
+          <strong id="moneyValue">$0</strong>
+        </div>
+        <div class="stat-row">
+          <span>Run Reward</span>
+          <strong id="rewardValue">$0</strong>
+        </div>
+      </div>
+
+      <div class="panel-card meter-card">
+        <div class="meter-header">
+          <span>Health</span>
+          <strong id="healthText">100 / 100</strong>
+        </div>
+        <div class="meter-track health-track">
+          <div class="meter-fill" id="healthFill"></div>
+        </div>
+
+        <div class="meter-header">
+          <span>Fuel</span>
+          <strong id="fuelText">100%</strong>
+        </div>
+        <div class="meter-track fuel-track">
+          <div class="meter-fill" id="fuelFill"></div>
+        </div>
+      </div>
+
+      <div class="panel-card live-stats">
+        <h2>Current Build</h2>
+        <div class="stat-grid" id="playerBuildStats"></div>
+      </div>
+
+      <div class="panel-card inventory-card">
+        <h2>Installed Parts</h2>
+        <div id="partList" class="part-list"></div>
+      </div>
+    </aside>
+
+    <main class="arena-panel">
+      <div class="canvas-frame">
+        <canvas id="gameCanvas" width="960" height="600" aria-label="Plane combat game canvas"></canvas>
+        <div class="hud-strip">
+          <div class="hud-pill"><span>Enemies</span><strong id="enemyCount">4</strong></div>
+          <div class="hud-pill"><span>Status</span><strong id="statusText">Stand by</strong></div>
+          <div class="hud-pill"><span>Controls</span><strong>WASD / Arrows / Space</strong></div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="side-panel action-panel">
+      <div class="panel-card action-card">
+        <button id="startButton" class="menu-button primary">Start Game</button>
+        <button id="shopButton" class="menu-button secondary">Shop</button>
+      </div>
+
+      <div class="panel-card tips-card">
+        <h2>Mission Notes</h2>
+        <ul>
+          <li>Fuel drains in combat. Zero fuel sharply cuts movement speed.</li>
+          <li>Enemy planes scale from your current build, but stay slightly weaker.</li>
+          <li>The boss is faster, tougher, and hits harder than your current airframe.</li>
+        </ul>
+      </div>
+
+      <div class="panel-card rarity-card">
+        <h2>Crates</h2>
+        <div class="rarity-key">
+          <span class="rarity common">Common</span>
+          <span class="rarity rare">Rare</span>
+          <span class="rarity epic">Epic</span>
+          <span class="rarity legendary">Legendary</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="overlay visible" id="startOverlay">
+    <div class="overlay-card hero-card">
+      <p class="eyebrow">Offline Browser Game</p>
+      <h2>Sky Dominion</h2>
+      <p>Launch directly from this folder. No installs, no server, no dependencies.</p>
+      <div class="overlay-actions">
+        <button id="overlayStartButton" class="menu-button primary">Launch Sortie</button>
+        <button id="overlayShopButton" class="menu-button secondary">Open Shop</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="shopOverlay">
+    <div class="overlay-card shop-card">
+      <div class="overlay-header">
+        <div>
+          <p class="eyebrow">Hangar Shop</p>
+          <h2>Upgrade Crates</h2>
+        </div>
+        <button id="closeShopButton" class="icon-button" aria-label="Close shop">×</button>
+      </div>
+      <div class="crate-grid" id="crateGrid"></div>
+      <div class="shop-log" id="shopLog">Choose a crate to install a random part immediately.</div>
+    </div>
+  </div>
+
+  <div class="overlay" id="resultOverlay">
+    <div class="overlay-card result-card">
+      <p class="eyebrow">Mission Report</p>
+      <h2 id="resultTitle">Victory</h2>
+      <p id="resultSummary">Summary text</p>
+      <div class="overlay-actions">
+        <button id="playAgainButton" class="menu-button primary">Play Again</button>
+        <button id="resultShopButton" class="menu-button secondary">Visit Shop</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
