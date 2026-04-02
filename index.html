@@ -434,6 +434,196 @@ canvas {
   min-height: 58px;
 }
 
+.market-screen {
+  position: relative;
+  z-index: 1;
+  background:
+    radial-gradient(circle at top right, rgba(78, 199, 160, 0.2), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(101, 216, 255, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(8, 16, 28, 0.98), rgba(6, 12, 22, 0.98));
+  padding: 28px;
+}
+
+.market-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  gap: 18px;
+}
+
+.market-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.market-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.market-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+  gap: 18px;
+}
+
+.market-board,
+.market-side {
+  background: linear-gradient(180deg, rgba(17, 32, 49, 0.97), rgba(9, 19, 31, 0.97));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  padding: 22px;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.45);
+}
+
+.market-table {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.market-row,
+.market-head {
+  display: grid;
+  grid-template-columns: 1.2fr 0.7fr 0.7fr 0.8fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.market-head {
+  color: var(--muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.market-row {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.market-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.trade-button {
+  width: auto;
+  min-width: 76px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.trade-button.buy {
+  background: rgba(116, 255, 190, 0.16);
+  color: #89ffc2;
+  border: 1px solid rgba(116, 255, 190, 0.2);
+}
+
+.trade-button.sell {
+  background: rgba(255, 109, 125, 0.15);
+  color: #ff9cab;
+  border: 1px solid rgba(255, 109, 125, 0.2);
+}
+
+.trade-button:disabled {
+  opacity: 0.42;
+  cursor: default;
+  transform: none;
+}
+
+.ticker {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ticker strong {
+  font-size: 1rem;
+}
+
+.ticker span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.delta-up {
+  color: var(--success);
+}
+
+.delta-down {
+  color: var(--danger);
+}
+
+.delta-flat {
+  color: var(--muted);
+}
+
+.market-side {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.market-note {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.market-note h3 {
+  margin: 0 0 10px;
+}
+
+.portfolio-list {
+  display: grid;
+  gap: 10px;
+}
+
+.portfolio-item {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.portfolio-item strong,
+.portfolio-item span {
+  display: block;
+}
+
+.portfolio-item span {
+  color: var(--muted);
+  margin-top: 4px;
+  font-size: 0.84rem;
+}
+
+.market-unlock {
+  display: grid;
+  gap: 12px;
+}
+
+.market-unlock .menu-button {
+  max-width: none;
+}
+
+.compact-money {
+  color: #eef6ff;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
 @media (max-width: 1180px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -446,6 +636,10 @@ canvas {
   .overlay-actions {
     flex-direction: column;
     align-items: center;
+  }
+
+  .market-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -463,6 +657,15 @@ canvas {
 
   .stat-grid {
     grid-template-columns: 1fr;
+  }
+
+  .market-screen {
+    padding: 16px;
+  }
+
+  .market-row,
+  .market-head {
+    grid-template-columns: 1fr 1fr;
   }
 }
   </style>
@@ -584,6 +787,45 @@ canvas {
       </div>
     </div>
   </div>
+
+  <div class="market-screen" id="marketScreen">
+    <div class="market-shell">
+      <div class="market-header">
+        <div>
+          <p class="eyebrow">Stock Market</p>
+          <h2>Sky Dominion Stock Market</h2>
+          <p>Scroll down from the combat game into a live market board with prices moving every 3 seconds.</p>
+        </div>
+      </div>
+      <div class="market-grid">
+        <section class="market-board">
+          <div class="market-head">
+            <span>Company</span>
+            <span>Price</span>
+            <span>Change</span>
+            <span>Status</span>
+          </div>
+          <div id="marketTable" class="market-table"></div>
+        </section>
+        <aside class="market-side">
+          <div class="market-note">
+            <h3>Cash</h3>
+            <div id="marketCash" class="compact-money">$0</div>
+          </div>
+          <div class="market-note market-unlock" id="robinhoodCard">
+            <h3>Robinhood</h3>
+            <div id="robinhoodText">Buy Robinhood for $1000 to unlock your portfolio and live profit tracking.</div>
+            <button id="buyRobinhoodButton" class="menu-button primary">Buy Robinhood</button>
+          </div>
+          <div class="market-note">
+            <h3>Portfolio</h3>
+            <div id="portfolioPanel" class="portfolio-list"></div>
+          </div>
+          <div class="market-note" id="marketPulse">Next market move incoming.</div>
+        </aside>
+      </div>
+    </div>
+  </div>
   <script>
 (function () {
   "use strict";
@@ -594,6 +836,8 @@ canvas {
   const TRAIL_POINTS = 8;
   const MAX_PARTICLES = 180;
   const UI_REFRESH_MS = 100;
+  const ACTIVE_FRAME_MS = 1000 / 60;
+  const IDLE_FRAME_MS = 1000 / 30;
 
   const ui = {
     moneyValue: document.getElementById("moneyValue"),
@@ -606,6 +850,13 @@ canvas {
     statusText: document.getElementById("statusText"),
     shopLog: document.getElementById("shopLog"),
     crateGrid: document.getElementById("crateGrid"),
+    marketTable: document.getElementById("marketTable"),
+    marketPulse: document.getElementById("marketPulse"),
+    marketCash: document.getElementById("marketCash"),
+    robinhoodCard: document.getElementById("robinhoodCard"),
+    robinhoodText: document.getElementById("robinhoodText"),
+    portfolioPanel: document.getElementById("portfolioPanel"),
+    marketSection: document.getElementById("marketScreen"),
     startOverlay: document.getElementById("startOverlay"),
     shopOverlay: document.getElementById("shopOverlay"),
     resultOverlay: document.getElementById("resultOverlay"),
@@ -617,6 +868,7 @@ canvas {
     start: document.getElementById("startButton"),
     shop: document.getElementById("shopButton"),
     resetProgress: document.getElementById("resetProgressButton"),
+    buyRobinhood: document.getElementById("buyRobinhoodButton"),
     overlayStart: document.getElementById("overlayStartButton"),
     overlayShop: document.getElementById("overlayShopButton"),
     closeShop: document.getElementById("closeShopButton"),
@@ -625,6 +877,15 @@ canvas {
   };
 
   const keys = new Set();
+  const marketCompanies = [
+    { ticker: "AER", name: "AeroDyne Works", price: 124.8, change: 0 },
+    { ticker: "JTP", name: "JetPulse Systems", price: 87.35, change: 0 },
+    { ticker: "SKY", name: "SkyForge Cargo", price: 201.15, change: 0 },
+    { ticker: "CLD", name: "Cloudline Defense", price: 63.9, change: 0 },
+    { ticker: "ORB", name: "Orbital Avionics", price: 149.45, change: 0 },
+    { ticker: "VNT", name: "Vanguard Turbines", price: 97.7, change: 0 },
+  ];
+  let marketTimer = null;
   const clouds = Array.from({ length: 10 }, (_, i) => ({
     x: (i / 10) * canvas.width,
     y: 70 + ((i * 83) % 340),
@@ -717,6 +978,8 @@ canvas {
         fireCooldown: 320,
         maxHealth: 120,
       },
+      robinhoodUnlocked: false,
+      stocks: {},
       lastReward: 0,
     };
   }
@@ -729,6 +992,8 @@ canvas {
   let cachedSkyGradient = null;
   let cachedArenaStrokeStyle = null;
   let isDocumentHidden = false;
+  let marketNeedsRender = false;
+  let isMarketVisible = true;
 
   function createCloudPath(w, h) {
     const path = new Path2D();
@@ -939,6 +1204,7 @@ canvas {
       const next = Object.assign({}, defaults, parsed || {});
       next.parts = Object.assign({}, defaults.parts, parsed && parsed.parts ? parsed.parts : {});
       next.stats = Object.assign({}, defaults.stats, parsed && parsed.stats ? parsed.stats : {});
+      next.stocks = Object.assign({}, defaults.stocks, parsed && parsed.stocks ? parsed.stocks : {});
       return next;
     } catch (error) {
       return baseSaveState();
@@ -947,6 +1213,146 @@ canvas {
 
   function persistSave() {
     localStorage.setItem(SAVE_KEY, JSON.stringify(save));
+  }
+
+  function getHolding(ticker) {
+    return save.stocks[ticker] || { shares: 0, costBasis: 0 };
+  }
+
+  function getCompanyByTicker(ticker) {
+    return marketCompanies.find((company) => company.ticker === ticker);
+  }
+
+  function updatePortfolioPanel() {
+    ui.marketCash.textContent = `$${Math.round(save.money)}`;
+    if (!save.robinhoodUnlocked) {
+      ui.robinhoodText.textContent = "Buy Robinhood for $1000 to unlock your portfolio and live profit tracking.";
+      ui.portfolioPanel.innerHTML = '<div class="market-note">Portfolio locked. Buy Robinhood to view holdings and current profit.</div>';
+      buttons.buyRobinhood.disabled = save.money < 1000;
+      buttons.buyRobinhood.textContent = save.money >= 1000 ? "Buy Robinhood" : "Need $1000";
+      return;
+    }
+
+    ui.robinhoodText.textContent = "Robinhood unlocked. Your live holdings and mark-to-market profit are below.";
+    buttons.buyRobinhood.disabled = true;
+    buttons.buyRobinhood.textContent = "Unlocked";
+
+    const entries = Object.keys(save.stocks)
+      .map((ticker) => {
+        const holding = getHolding(ticker);
+        const company = getCompanyByTicker(ticker);
+        if (!company || !holding.shares) {
+          return null;
+        }
+        const averageCost = holding.costBasis / holding.shares;
+        const marketValue = company.price * holding.shares;
+        const profit = marketValue - holding.costBasis;
+        const profitClass = profit > 0 ? "delta-up" : profit < 0 ? "delta-down" : "delta-flat";
+        return `
+          <div class="portfolio-item">
+            <strong>${ticker} • ${holding.shares} share${holding.shares === 1 ? "" : "s"}</strong>
+            <span>Avg cost: $${averageCost.toFixed(2)} • Value now: $${marketValue.toFixed(2)}</span>
+            <span class="${profitClass}">Profit if sold now: ${profit > 0 ? "+" : ""}$${profit.toFixed(2)}</span>
+          </div>
+        `;
+      })
+      .filter(Boolean);
+
+    ui.portfolioPanel.innerHTML = entries.length ? entries.join("") : '<div class="market-note">No stocks owned yet. Use the Buy buttons on the board.</div>';
+  }
+
+  function renderMarket() {
+    ui.marketTable.innerHTML = marketCompanies.map((company) => {
+      const holding = getHolding(company.ticker);
+      const deltaClass = company.change > 0 ? "delta-up" : company.change < 0 ? "delta-down" : "delta-flat";
+      const deltaText = company.change > 0 ? `+${company.change.toFixed(2)}` : company.change.toFixed(2);
+      const status = company.change > 0 ? "Rally" : company.change < 0 ? "Sliding" : "Flat";
+      return `
+        <div class="market-row">
+          <div class="ticker"><strong>${company.ticker}</strong><span>${company.name}</span></div>
+          <strong>$${company.price.toFixed(2)}</strong>
+          <strong class="${deltaClass}">${deltaText}</strong>
+          <div class="market-actions">
+            <button class="menu-button trade-button buy" data-action="buy-stock" data-ticker="${company.ticker}" ${save.money < company.price ? "disabled" : ""}>Buy</button>
+            <button class="menu-button trade-button sell" data-action="sell-stock" data-ticker="${company.ticker}" ${holding.shares < 1 ? "disabled" : ""}>Sell</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+    updatePortfolioPanel();
+    marketNeedsRender = false;
+  }
+
+  function tickMarket() {
+    for (const company of marketCompanies) {
+      const swing = (Math.random() * 8 - 4);
+      company.change = Math.round(swing * 100) / 100;
+      company.price = Math.max(8, Math.round((company.price + company.change) * 100) / 100);
+    }
+    const leaders = marketCompanies
+      .slice()
+      .sort((a, b) => b.change - a.change)
+      .slice(0, 2)
+      .map((company) => `${company.ticker} ${company.change > 0 ? "+" : ""}${company.change.toFixed(2)}`)
+      .join(" • ");
+    ui.marketPulse.textContent = `Market refreshed. Leaders: ${leaders}`;
+    marketNeedsRender = true;
+    if (isMarketVisible && !isDocumentHidden) {
+      renderMarket();
+    }
+  }
+
+  function buyRobinhood() {
+    if (save.robinhoodUnlocked || save.money < 1000) {
+      return;
+    }
+    save.money -= 1000;
+    save.robinhoodUnlocked = true;
+    persistSave();
+    updatePersistentUI();
+    renderMarket();
+    ui.marketPulse.textContent = "Robinhood purchased. Portfolio tracking is now live.";
+  }
+
+  function buyStock(ticker) {
+    const company = getCompanyByTicker(ticker);
+    if (!company || save.money < company.price) {
+      return;
+    }
+    const holding = getHolding(ticker);
+    save.money -= company.price;
+    save.stocks[ticker] = {
+      shares: holding.shares + 1,
+      costBasis: Math.round((holding.costBasis + company.price) * 100) / 100,
+    };
+    persistSave();
+    updatePersistentUI();
+    renderMarket();
+    ui.marketPulse.textContent = `Bought 1 share of ${ticker} at $${company.price.toFixed(2)}.`;
+  }
+
+  function sellStock(ticker) {
+    const company = getCompanyByTicker(ticker);
+    const holding = getHolding(ticker);
+    if (!company || holding.shares < 1) {
+      return;
+    }
+    const averageCost = holding.costBasis / holding.shares;
+    const nextShares = holding.shares - 1;
+    save.money += company.price;
+    if (nextShares <= 0) {
+      delete save.stocks[ticker];
+    } else {
+      save.stocks[ticker] = {
+        shares: nextShares,
+        costBasis: Math.round((holding.costBasis - averageCost) * 100) / 100,
+      };
+    }
+    persistSave();
+    updatePersistentUI();
+    renderMarket();
+    const profit = company.price - averageCost;
+    ui.marketPulse.textContent = `Sold 1 share of ${ticker}. ${profit >= 0 ? "Profit" : "Loss"}: $${Math.abs(profit).toFixed(2)}.`;
   }
 
   function resetProgress() {
@@ -1618,6 +2024,11 @@ canvas {
       requestAnimationFrame(gameLoop);
       return;
     }
+    const frameBudget = gameState && gameState.running ? ACTIVE_FRAME_MS : IDLE_FRAME_MS;
+    if (timestamp - lastFrame < frameBudget) {
+      requestAnimationFrame(gameLoop);
+      return;
+    }
     const dt = Math.min((timestamp - lastFrame) / 1000, 0.033);
     lastFrame = timestamp;
     update(dt);
@@ -1642,6 +2053,7 @@ canvas {
     buttons.overlayStart.addEventListener("click", startGame);
     buttons.playAgain.addEventListener("click", startGame);
     buttons.resetProgress.addEventListener("click", resetProgress);
+    buttons.buyRobinhood.addEventListener("click", buyRobinhood);
 
     const openShop = () => {
       hideOverlay(ui.startOverlay);
@@ -1663,18 +2075,53 @@ canvas {
       buyCrate(button.dataset.crateId);
     });
 
+    ui.marketTable.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) {
+        return;
+      }
+      if (button.dataset.action === "buy-stock") {
+        buyStock(button.dataset.ticker);
+        return;
+      }
+      if (button.dataset.action === "sell-stock") {
+        sellStock(button.dataset.ticker);
+      }
+    });
+
     window.addEventListener("blur", () => keys.clear());
     document.addEventListener("visibilitychange", () => {
       isDocumentHidden = document.hidden;
       if (isDocumentHidden) {
         keys.clear();
+      } else if (marketNeedsRender && isMarketVisible) {
+        renderMarket();
       }
     });
+
+    if ("IntersectionObserver" in window) {
+      const marketObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.target !== ui.marketSection) {
+            continue;
+          }
+          isMarketVisible = entry.isIntersecting;
+          if (isMarketVisible && marketNeedsRender && !isDocumentHidden) {
+            renderMarket();
+          }
+        }
+      }, { threshold: 0.08 });
+      marketObserver.observe(ui.marketSection);
+    }
   }
 
   renderCrates();
   bindEvents();
   updatePersistentUI();
+  renderMarket();
+  if (!marketTimer) {
+    marketTimer = window.setInterval(tickMarket, 3000);
+  }
   refreshRuntimeUI(true);
   requestAnimationFrame(gameLoop);
 })();
