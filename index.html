@@ -788,6 +788,37 @@ canvas {
     </div>
   </div>
 
+  <div class="overlay" id="difficultyOverlay">
+    <div class="overlay-card">
+      <p class="eyebrow">Choose Difficulty</p>
+      <h2>Select Mission Threat</h2>
+      <p>Pick `Easy`, `Medium`, or `Hard` before each run. Harder missions pay more.</p>
+      <div class="crate-grid">
+        <div class="crate-card">
+          <p class="eyebrow">Easy</p>
+          <h3>1.00x payout</h3>
+          <p>Lightest enemy scaling and the baseline reward.</p>
+          <button class="menu-button secondary difficulty-button" data-difficulty="easy">Play Easy</button>
+        </div>
+        <div class="crate-card">
+          <p class="eyebrow">Medium</p>
+          <h3>1.35x payout</h3>
+          <p>Balanced enemy strength with a better reward multiplier.</p>
+          <button class="menu-button primary difficulty-button" data-difficulty="medium">Play Medium</button>
+        </div>
+        <div class="crate-card">
+          <p class="eyebrow">Hard</p>
+          <h3>1.80x payout</h3>
+          <p>Highest enemy scaling and the biggest payout bonus.</p>
+          <button class="menu-button danger difficulty-button" data-difficulty="hard">Play Hard</button>
+        </div>
+      </div>
+      <div class="overlay-actions">
+        <button id="cancelDifficultyButton" class="menu-button secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div class="market-screen" id="marketScreen">
     <div class="market-shell">
       <div class="market-header">
@@ -858,6 +889,7 @@ canvas {
     portfolioPanel: document.getElementById("portfolioPanel"),
     marketSection: document.getElementById("marketScreen"),
     startOverlay: document.getElementById("startOverlay"),
+    difficultyOverlay: document.getElementById("difficultyOverlay"),
     shopOverlay: document.getElementById("shopOverlay"),
     resultOverlay: document.getElementById("resultOverlay"),
     resultTitle: document.getElementById("resultTitle"),
@@ -869,6 +901,7 @@ canvas {
     shop: document.getElementById("shopButton"),
     resetProgress: document.getElementById("resetProgressButton"),
     buyRobinhood: document.getElementById("buyRobinhoodButton"),
+    cancelDifficulty: document.getElementById("cancelDifficultyButton"),
     overlayStart: document.getElementById("overlayStartButton"),
     overlayShop: document.getElementById("overlayShopButton"),
     closeShop: document.getElementById("closeShopButton"),
@@ -885,6 +918,23 @@ canvas {
     { ticker: "ORB", name: "Orbital Avionics", price: 149.45, change: 0 },
     { ticker: "VNT", name: "Vanguard Turbines", price: 97.7, change: 0 },
   ];
+  const difficultyModes = {
+    easy: {
+      label: "Easy",
+      payoutMultiplier: 1,
+      enemyMultiplier: 0.88,
+    },
+    medium: {
+      label: "Medium",
+      payoutMultiplier: 1.35,
+      enemyMultiplier: 1,
+    },
+    hard: {
+      label: "Hard",
+      payoutMultiplier: 1.8,
+      enemyMultiplier: 1.17,
+    },
+  };
   let marketTimer = null;
   const clouds = Array.from({ length: 10 }, (_, i) => ({
     x: (i / 10) * canvas.width,
@@ -1103,6 +1153,8 @@ canvas {
       this.maxHealth = config.maxHealth;
       this.health = config.maxHealth;
       this.bulletSpeed = config.bulletSpeed !== undefined ? config.bulletSpeed : 420;
+      this.vx = 0;
+      this.vy = 0;
       this.cooldown = Math.random() * this.fireCooldown;
       this.dead = false;
       this.rewardValue = config.rewardValue !== undefined ? config.rewardValue : 0;
@@ -1430,7 +1482,8 @@ canvas {
     updatePersistentUI();
   }
 
-  function createRun() {
+  function createRun(difficultyKey) {
+    const difficulty = difficultyModes[difficultyKey] || difficultyModes.medium;
     const playerStats = Object.assign({}, save.stats);
     const player = new Plane({
       kind: "player",
@@ -1441,7 +1494,7 @@ canvas {
       trim: "#7fe8ff",
       size: 28,
       speed: playerStats.speed * 60,
-      turn: playerStats.turn * 4,
+      turn: playerStats.turn * 5.4,
       damage: playerStats.damage,
       fireCooldown: playerStats.fireCooldown,
       maxHealth: playerStats.maxHealth,
@@ -1450,14 +1503,17 @@ canvas {
 
     const enemies = [];
     for (let i = 0; i < 3; i += 1) {
-      enemies.push(makeEnemy(playerStats, i, false));
+      enemies.push(makeEnemy(playerStats, i, false, difficulty.enemyMultiplier));
     }
 
     return {
       running: true,
       player,
       enemies,
-      boss: makeEnemy(playerStats, 3, true),
+      boss: makeEnemy(playerStats, 3, true, difficulty.enemyMultiplier),
+      difficulty: difficultyKey,
+      difficultyLabel: difficulty.label,
+      payoutMultiplier: difficulty.payoutMultiplier,
       phase: "squadron",
       transitionTimer: 0,
       phaseMessage: "",
@@ -1470,11 +1526,12 @@ canvas {
     };
   }
 
-  function makeEnemy(stats, index, boss) {
-    const scale = boss ? 1.1 : 0.82;
-    const speedBias = boss ? 1.12 : 0.88;
-    const damageBias = boss ? 1.16 : 0.84;
-    const healthBias = boss ? 1.2 : 0.82;
+  function makeEnemy(stats, index, boss, difficultyMultiplier) {
+    const scale = boss ? 1.02 : 0.76;
+    const speedBias = boss ? 1.02 : 0.8;
+    const damageBias = boss ? 1.04 : 0.72;
+    const healthBias = boss ? 1.06 : 0.7;
+    const difficultyScale = difficultyMultiplier || 1;
 
     return new Plane({
       kind: "enemy",
@@ -1484,12 +1541,12 @@ canvas {
       color: boss ? "#5e2034" : "#4b2031",
       trim: boss ? "#ffbb61" : "#ff8090",
       size: boss ? 34 : 24,
-      speed: stats.speed * 60 * speedBias * scale,
-      turn: stats.turn * 4 * (boss ? 1.05 : 0.9),
-      damage: stats.damage * damageBias,
-      fireCooldown: Math.max(180, stats.fireCooldown * (boss ? 0.82 : 1.06)),
-      maxHealth: stats.maxHealth * healthBias,
-      bulletSpeed: boss ? 560 : 470,
+      speed: stats.speed * 60 * speedBias * scale * difficultyScale,
+      turn: stats.turn * 4 * (boss ? 0.98 : 0.86) * Math.min(1.08, 0.94 + difficultyScale * 0.08),
+      damage: stats.damage * damageBias * difficultyScale,
+      fireCooldown: Math.max(170, stats.fireCooldown * (boss ? 0.9 : 1.1) / Math.min(1.18, difficultyScale)),
+      maxHealth: stats.maxHealth * healthBias * difficultyScale,
+      bulletSpeed: (boss ? 560 : 470) * Math.min(1.12, 0.92 + difficultyScale * 0.12),
       rewardValue: boss ? 240 : 90,
     });
   }
@@ -1513,12 +1570,20 @@ canvas {
     refreshRuntimeUI(true);
   }
 
-  function startGame() {
-    gameState = createRun();
+  function openDifficultyPicker() {
     hideOverlay(ui.startOverlay);
     hideOverlay(ui.resultOverlay);
     hideOverlay(ui.shopOverlay);
-    ui.statusText.textContent = "Engaged";
+    showOverlay(ui.difficultyOverlay);
+  }
+
+  function startGame(difficultyKey) {
+    gameState = createRun(difficultyKey);
+    hideOverlay(ui.startOverlay);
+    hideOverlay(ui.difficultyOverlay);
+    hideOverlay(ui.resultOverlay);
+    hideOverlay(ui.shopOverlay);
+    ui.statusText.textContent = `${gameState.difficultyLabel} Engaged`;
     ui.rewardValue.textContent = "$0";
     refreshRuntimeUI(true);
   }
@@ -1532,14 +1597,14 @@ canvas {
 
     const remainingHealthBonus = Math.round(Math.max(gameState.player.health, 0) * 1.2);
     const victoryBonus = victory ? 220 : 40;
-    const reward = Math.round(gameState.reward + remainingHealthBonus + victoryBonus);
+    const reward = Math.round((gameState.reward + remainingHealthBonus + victoryBonus) * gameState.payoutMultiplier);
     save.money += reward;
     save.lastReward = reward;
     persistSave();
     updatePersistentUI();
 
     ui.resultTitle.textContent = victory ? "Mission Complete" : "Aircraft Lost";
-    ui.resultSummary.textContent = `${victory ? "Squadron cleared." : "You were shot down."} Earned $${reward}. Money is stored locally for future upgrades.`;
+    ui.resultSummary.textContent = `${victory ? "Squadron cleared." : "You were shot down."} ${gameState.difficultyLabel} payout: ${gameState.payoutMultiplier.toFixed(2)}x. Earned $${reward}. Money is stored locally for future upgrades.`;
     showOverlay(ui.resultOverlay);
     ui.statusText.textContent = victory ? "Victory" : "Defeat";
     refreshRuntimeUI(true);
@@ -1685,8 +1750,10 @@ canvas {
     dx /= magnitude;
     dy /= magnitude;
 
-    player.x = clamp(player.x + dx * player.speed * dt, 40, canvas.width - 40);
-    player.y = clamp(player.y + dy * player.speed * dt, 50, canvas.height - 50);
+    player.vx = dx * player.speed;
+    player.vy = dy * player.speed;
+    player.x = clamp(player.x + player.vx * dt, 40, canvas.width - 40);
+    player.y = clamp(player.y + player.vy * dt, 50, canvas.height - 50);
 
     if (dx !== 0 || dy !== 0) {
       const targetAngle = Math.atan2(dy, dx);
@@ -1704,24 +1771,35 @@ canvas {
           }
         ));
       }
+    } else {
+      player.vx = 0;
+      player.vy = 0;
     }
   }
 
   function updateEnemy(enemy, player, dt) {
-    const dx = player.x - enemy.x;
-    const dy = player.y - enemy.y;
+    const leadTime = enemy.size > 30 ? 0.34 : 0.24;
+    const predictedX = player.x + player.vx * leadTime;
+    const predictedY = player.y + player.vy * leadTime;
+    const dx = predictedX - enemy.x;
+    const dy = predictedY - enemy.y;
     const distance = Math.hypot(dx, dy) || 1;
+    const desiredDistance = enemy.size > 30 ? 230 : 265;
     let targetAngle = Math.atan2(dy, dx);
 
-    if (distance < 210) {
-      targetAngle += enemy.targetOrbit * 0.85;
+    if (distance < desiredDistance - 60) {
+      targetAngle += Math.PI * 0.9 + enemy.targetOrbit * 0.25;
+    } else if (distance < desiredDistance + 35) {
+      targetAngle += enemy.targetOrbit * (enemy.size > 30 ? 0.72 : 0.92);
+    } else if (distance > desiredDistance + 120) {
+      targetAngle += enemy.targetOrbit * 0.16;
     }
 
     enemy.angle = rotateTowards(enemy.angle, targetAngle, enemy.turn * dt);
     enemy.x = clamp(enemy.x + Math.cos(enemy.angle) * enemy.speed * dt, 40, canvas.width - 40);
     enemy.y = clamp(enemy.y + Math.sin(enemy.angle) * enemy.speed * dt, 50, canvas.height - 50);
 
-    if (distance < 420 && Math.abs(normalizeAngle(targetAngle - enemy.angle)) < 0.38) {
+    if (distance < 460 && Math.abs(normalizeAngle(targetAngle - enemy.angle)) < 0.32) {
       const shot = enemy.shoot(enemy.angle);
       if (shot) {
         gameState.bullets.push(shot);
@@ -2049,11 +2127,15 @@ canvas {
       keys.delete(event.key.toLowerCase());
     });
 
-    buttons.start.addEventListener("click", startGame);
-    buttons.overlayStart.addEventListener("click", startGame);
-    buttons.playAgain.addEventListener("click", startGame);
+    buttons.start.addEventListener("click", openDifficultyPicker);
+    buttons.overlayStart.addEventListener("click", openDifficultyPicker);
+    buttons.playAgain.addEventListener("click", openDifficultyPicker);
     buttons.resetProgress.addEventListener("click", resetProgress);
     buttons.buyRobinhood.addEventListener("click", buyRobinhood);
+    buttons.cancelDifficulty.addEventListener("click", () => {
+      hideOverlay(ui.difficultyOverlay);
+      showOverlay(ui.startOverlay);
+    });
 
     const openShop = () => {
       hideOverlay(ui.startOverlay);
@@ -2087,6 +2169,14 @@ canvas {
       if (button.dataset.action === "sell-stock") {
         sellStock(button.dataset.ticker);
       }
+    });
+
+    ui.difficultyOverlay.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-difficulty]");
+      if (!button) {
+        return;
+      }
+      startGame(button.dataset.difficulty);
     });
 
     window.addEventListener("blur", () => keys.clear());
